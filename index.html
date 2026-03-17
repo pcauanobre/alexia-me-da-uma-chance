@@ -1,0 +1,1283 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>ME DÁ UMA CHANCE MARIANA!</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { width:100%; height:100%; overflow:hidden; }
+    body { background:#0b0810; font-family:'Poppins',sans-serif; color:#fff; }
+
+    canvas#stars { position:fixed; inset:0; z-index:0; }
+
+    /* ── CORTINA ── */
+    #curtain {
+      position:fixed; inset:0; z-index:10;
+      display:flex; align-items:center; justify-content:center;
+      overflow:hidden;
+    }
+    .panel {
+      position:absolute; top:0; width:51%; height:100%;
+      transition: transform .9s cubic-bezier(.77,0,.175,1);
+    }
+    .panel.l {
+      left:0;
+      background:
+        repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0, transparent 18px, rgba(0,0,0,.1) 18px, transparent 36px),
+        linear-gradient(180deg,#720013,#c2001c 40%,#8a0016 70%,#640011);
+    }
+    .panel.r {
+      right:0;
+      background:
+        repeating-linear-gradient(90deg, rgba(0,0,0,.1) 0, transparent 18px, rgba(255,255,255,.05) 18px, transparent 36px),
+        linear-gradient(180deg,#720013,#c2001c 40%,#8a0016 70%,#640011);
+    }
+    .rod {
+      position:absolute; top:0; left:0; right:0; height:10px; z-index:20;
+      background:linear-gradient(90deg,#5a4000,#d4a800,#f5d060,#d4a800,#5a4000);
+    }
+    .panel.l.open { transform:translateX(-101%); }
+    .panel.r.open { transform:translateX(101%); }
+
+    #openBtn {
+      position:relative; z-index:15;
+      padding:20px 40px;
+      background:linear-gradient(135deg,#b8860b,#d4a800,#f5d060,#d4a800,#b8860b);
+      color:#1a0a00; border:2px solid rgba(245,208,96,.5);
+      border-radius:50px;
+      font-family:'Poppins',sans-serif;
+      font-weight:700;
+      font-size:clamp(1.1rem,4.5vw,1.4rem);
+      cursor:pointer;
+      box-shadow:0 4px 30px rgba(212,168,0,.6), 0 0 50px rgba(245,208,96,.2);
+      animation:pulse 2s ease-in-out infinite;
+      text-shadow:0 1px 2px rgba(255,255,255,.3);
+      -webkit-tap-highlight-color:transparent;
+    }
+    @keyframes pulse {
+      0%,100%{ transform:scale(1); }
+      50%{ transform:scale(1.06); }
+    }
+    #openBtn.hide { display:none; }
+
+    /* ── VÍDEO ── */
+    #videoArea {
+      position:fixed; inset:0; z-index:5;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      opacity:0; transition:opacity .8s ease;
+      pointer-events:none;
+    }
+    #videoArea.show { opacity:1; pointer-events:all; }
+
+    #vid {
+      width:clamp(280px,85vw,500px);
+      border-radius:16px;
+      border:3px solid rgba(255,130,165,.25);
+      box-shadow:0 0 40px rgba(200,0,50,.4);
+      background:#000;
+      transform:scale(0);
+      transition:transform .7s cubic-bezier(.34,1.56,.64,1);
+    }
+    #videoArea.show #vid { transform:scale(1); }
+
+    #pauseText {
+      margin-top:20px;
+      text-align:center;
+      min-height:80px;
+    }
+    #pauseText p {
+      font-size:clamp(1.2rem,5vw,1.7rem);
+      color:#ffb0c8;
+      opacity:0;
+      transform:translateY(12px);
+      transition:opacity .5s ease, transform .5s ease;
+      text-shadow:0 0 20px rgba(255,80,130,.6);
+    }
+    #pauseText p.show { opacity:1; transform:translateY(0); }
+
+    /* ── TEXTOS SEQUENCIAIS (só estrelas) ── */
+    #textSequence {
+      position:fixed; inset:0; z-index:50;
+      display:none;
+      align-items:center; justify-content:center;
+      padding:30px;
+      text-align:center;
+    }
+    #textSequence.show { display:flex; }
+
+    #seqText {
+      font-size:clamp(1.3rem,5.5vw,2rem);
+      font-weight:600;
+      color:#ffb0c8;
+      text-shadow:0 0 30px rgba(255,80,130,.5);
+      line-height:1.6;
+      opacity:0;
+      transform:translateY(20px);
+      transition:opacity .6s ease, transform .6s ease;
+    }
+    #seqText.show { opacity:1; transform:translateY(0); }
+
+    @keyframes bounce {
+      0%,100% { transform:translateY(0); }
+      50%     { transform:translateY(-10px); }
+    }
+
+    /* ── TELA MOTIVOS ── */
+    #motivosScreen {
+      position:fixed; inset:0; z-index:50;
+      display:none;
+      flex-direction:column;
+      align-items:center;
+      padding:20px;
+      overflow-y:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+    #motivosScreen.show { display:flex; }
+
+    .motivos-title {
+      font-size:clamp(1.2rem,5vw,1.7rem);
+      font-weight:700;
+      text-align:center;
+      color:#ffb0c8;
+      text-shadow:0 0 30px rgba(255,80,130,.5);
+      margin:40px 0 8px;
+      opacity:0;
+      transform:scale(.5);
+      transition:all .6s cubic-bezier(.34,1.56,.64,1);
+    }
+    .motivos-title.show { opacity:1; transform:scale(1); }
+
+    .motivos-sub {
+      font-size:clamp(.75rem,3vw,.88rem);
+      color:#666;
+      font-style:italic;
+      margin-bottom:20px;
+      opacity:0;
+      transition:opacity .5s ease .3s;
+    }
+    .motivos-sub.show { opacity:1; }
+
+    .motivos-list {
+      display:flex; flex-direction:column;
+      gap:10px;
+      max-width:380px; width:100%;
+      margin-bottom:20px;
+    }
+
+    .motivo-drop {
+      background:linear-gradient(135deg, rgba(255,255,255,.04), rgba(255,80,130,.06));
+      border:1px solid rgba(255,110,155,.15);
+      border-radius:14px;
+      overflow:hidden;
+      opacity:0;
+      transform:translateY(20px);
+      transition:opacity .4s ease, transform .4s ease;
+    }
+    .motivo-drop.show { opacity:1; transform:translateY(0); }
+
+    .motivo-header {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:14px 18px;
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+      user-select:none;
+    }
+    .motivo-header:active { background:rgba(255,255,255,.03); }
+
+    .motivo-label {
+      font-size:clamp(.9rem,3.5vw,1.05rem);
+      font-weight:600;
+      color:#f0dde5;
+    }
+
+    .motivo-arrow {
+      font-size:.85rem;
+      color:#ff6eaa;
+      transition:transform .3s ease;
+    }
+    .motivo-drop.open .motivo-arrow { transform:rotate(180deg); }
+
+    .motivo-body {
+      max-height:0;
+      overflow:hidden;
+      transition:max-height .4s cubic-bezier(.4,0,.2,1), padding .4s ease;
+      padding:0 18px;
+    }
+    .motivo-drop.open .motivo-body {
+      max-height:200px;
+      padding:0 18px 16px;
+    }
+
+    .motivo-body p {
+      font-size:clamp(.85rem,3.3vw,1rem);
+      color:#ccc;
+      line-height:1.5;
+    }
+    .motivo-body p strong { color:#ff6eaa; }
+
+    .motivos-next-btn {
+      margin:10px 0 40px;
+      padding:14px 32px;
+      background:linear-gradient(135deg,#c5002b,#ff3d5e);
+      color:#fff; border:none; border-radius:50px;
+      font-family:'Poppins',sans-serif;
+      font-weight:600;
+      font-size:clamp(.95rem,3.8vw,1.1rem);
+      cursor:pointer;
+      box-shadow:0 4px 22px rgba(200,0,50,.5);
+      opacity:0;
+      transform:translateY(20px);
+      transition:all .5s ease;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .motivos-next-btn.show {
+      opacity:1; transform:translateY(0);
+      animation:pulse 2s ease-in-out infinite;
+    }
+
+    /* ── TELA EXTRAS (animais/sobrinha) ── */
+    #extrasScreen {
+      position:fixed; inset:0; z-index:55;
+      display:none;
+      flex-direction:column;
+      align-items:center; justify-content:center;
+      padding:24px;
+      text-align:center;
+    }
+    #extrasScreen.show { display:flex; }
+
+    .extras-text {
+      font-size:clamp(1.1rem,4.5vw,1.5rem);
+      font-weight:600;
+      color:#ffb0c8;
+      text-shadow:0 0 25px rgba(255,80,130,.4);
+      margin-bottom:16px;
+      opacity:0;
+      transform:translateY(20px);
+      transition:all .6s ease;
+    }
+    .extras-text.show { opacity:1; transform:translateY(0); }
+
+    .extras-photo {
+      max-width:clamp(260px,80vw,380px);
+      border-radius:20px;
+      overflow:hidden;
+      border:3px solid rgba(255,130,165,.25);
+      box-shadow:0 0 40px rgba(200,0,50,.3);
+      opacity:0;
+      transform:scale(.6);
+      transition:all .6s cubic-bezier(.34,1.56,.64,1);
+    }
+    .extras-photo.show { opacity:1; transform:scale(1); }
+    .extras-photo img { width:100%; height:auto; display:block; }
+
+    .extras-name {
+      font-size:clamp(.85rem,3.5vw,1rem);
+      color:#aaa;
+      font-style:italic;
+      margin-top:10px;
+      opacity:0;
+      transition:opacity .5s ease;
+    }
+    .extras-name.show { opacity:1; }
+
+    .extras-btn {
+      margin-top:22px;
+      padding:12px 28px;
+      background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.03));
+      color:#ffb0c8;
+      border:1px solid rgba(255,110,155,.2);
+      border-radius:50px;
+      font-family:'Poppins',sans-serif;
+      font-size:clamp(.85rem,3.5vw,1rem);
+      cursor:pointer;
+      opacity:0;
+      transition:all .5s ease;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .extras-btn.show { opacity:1; }
+
+    /* ── TELA CASAR ── */
+    #casarScreen {
+      position:fixed; inset:0; z-index:60;
+      display:none; flex-direction:column;
+      align-items:center; justify-content:center;
+      padding:20px; overflow:hidden;
+    }
+    #casarScreen.show { display:flex; }
+
+    .casar-emoji {
+      font-size:clamp(3rem,14vw,5rem);
+      animation:bounce 1s ease-in-out infinite;
+      margin-bottom:10px;
+    }
+    .casar-title {
+      font-size:clamp(1.5rem,6.5vw,2.3rem);
+      font-weight:700;
+      text-align:center; margin-bottom:8px;
+      color:#ffb0c8;
+      text-shadow:0 0 30px rgba(255,80,130,.5);
+    }
+    .casar-sub {
+      font-size:clamp(.8rem,3vw,.95rem);
+      color:#666; font-style:italic;
+      margin-bottom:30px; text-align:center;
+    }
+    .casar-btns {
+      display:flex; flex-direction:column; gap:16px;
+      align-items:center; min-height:60px;
+    }
+    .btn-sim {
+      padding:14px 32px;
+      background:linear-gradient(135deg,#00c853,#69f0ae);
+      color:#003300; border:none; border-radius:50px;
+      font-family:'Poppins',sans-serif;
+      font-weight:700;
+      font-size:clamp(1rem,4vw,1.2rem);
+      cursor:pointer;
+      box-shadow:0 4px 22px rgba(0,200,83,.5);
+      -webkit-tap-highlight-color:transparent;
+      animation:pulse 2s ease-in-out infinite;
+    }
+    .btn-nao {
+      padding:14px 28px;
+      background:linear-gradient(135deg,#333,#555);
+      color:#ccc; border:1px solid #444; border-radius:50px;
+      font-family:'Poppins',sans-serif;
+      font-weight:600;
+      font-size:clamp(.9rem,3.5vw,1.05rem);
+      cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+      transition:all .25s cubic-bezier(.34,1.56,.64,1);
+      white-space:nowrap;
+    }
+    .btn-nao.runner { position:fixed; z-index:999; }
+    .casar-msg {
+      margin-top:22px;
+      font-size:clamp(.85rem,3.5vw,1rem);
+      color:#ff6eaa; text-align:center;
+      min-height:28px; opacity:0;
+      transition:opacity .3s ease;
+    }
+    .casar-msg.show { opacity:1; }
+
+    /* ── TELA APELAR ── */
+    #apelarScreen {
+      position:fixed; inset:0; z-index:65;
+      display:none; flex-direction:column;
+      align-items:center; justify-content:center;
+      padding:20px;
+    }
+    #apelarScreen.show { display:flex; }
+
+    .apelar-text {
+      font-size:clamp(1.1rem,4.5vw,1.5rem);
+      font-weight:600; color:#ffb0c8;
+      text-align:center; margin-bottom:20px;
+      opacity:0; transform:translateY(20px);
+      transition:all .6s ease;
+      text-shadow:0 0 20px rgba(255,80,130,.4);
+    }
+    .apelar-text.show { opacity:1; transform:translateY(0); }
+
+    .apelar-video-wrap {
+      width:clamp(250px,80vw,400px);
+      border-radius:16px; overflow:hidden;
+      border:3px solid rgba(255,130,165,.25);
+      box-shadow:0 0 40px rgba(200,0,50,.4);
+      background:#000;
+      opacity:0; transform:scale(.7);
+      transition:all .6s cubic-bezier(.34,1.56,.64,1);
+    }
+    .apelar-video-wrap.show { opacity:1; transform:scale(1); }
+    .apelar-video-wrap video { width:100%; display:block; }
+
+    .apelar-btn {
+      margin-top:20px; opacity:0;
+      transform:translateY(20px);
+      transition:all .5s ease;
+    }
+    .apelar-btn.show { opacity:1; transform:translateY(0); }
+
+    /* ── TELA DEPOIMENTOS ── */
+    #depoimentosScreen {
+      position:fixed; inset:0; z-index:55;
+      display:none; flex-direction:column;
+      align-items:center; justify-content:safe center;
+      padding:15px 20px; overflow-y:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+    #depoimentosScreen.show { display:flex; }
+
+    .depo-title {
+      font-size:clamp(1.2rem,5vw,1.8rem);
+      font-weight:700; color:#ffb0c8;
+      text-align:center; margin-bottom:20px;
+      text-shadow:0 0 20px rgba(255,80,130,.4);
+    }
+
+    .depo-card {
+      background:linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+      border:1px solid rgba(255,130,165,.15);
+      border-radius:16px; padding:14px 16px;
+      margin-bottom:10px; width:min(90vw,380px);
+      flex-shrink:0;
+      opacity:0; transform:translateY(20px);
+      transition:all .5s ease;
+    }
+    .depo-card.show { opacity:1; transform:translateY(0); }
+
+    .depo-stars { font-size:1.2rem; margin-bottom:6px; }
+    .depo-text {
+      font-size:clamp(.95rem,3.8vw,1.1rem);
+      color:#e0e0e0; font-style:italic;
+      line-height:1.5; margin-bottom:8px;
+    }
+    .depo-author {
+      font-size:clamp(.85rem,3.2vw,1rem);
+      color:#ffb0c8; font-weight:600;
+      text-align:right;
+    }
+
+    .depo-next-btn {
+      margin-top:12px; margin-bottom:15px; padding:12px 28px;
+      flex-shrink:0;
+      background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.03));
+      color:#ffb0c8; border:1px solid rgba(255,130,165,.2);
+      border-radius:50px; font-size:1rem;
+      cursor:pointer; opacity:0;
+      transition:all .5s ease;
+    }
+    .depo-next-btn.show { opacity:1; }
+
+    /* ── CONFETE ── */
+    .confetti {
+      position:fixed; top:-10px; z-index:9999;
+      width:10px; height:10px;
+      border-radius:2px; pointer-events:none;
+      animation:confettiFall 3s ease-in forwards;
+    }
+    @keyframes confettiFall {
+      0% { transform:translateY(0) rotate(0deg); opacity:1; }
+      100% { transform:translateY(100vh) rotate(720deg); opacity:0; }
+    }
+
+    /* ── TELA FINAL ── */
+    #finalScreen {
+      position:fixed; inset:0; z-index:70;
+      display:none; flex-direction:column;
+      align-items:center; justify-content:center;
+      padding:20px;
+    }
+    #finalScreen.show { display:flex; }
+
+    .final-emoji { font-size:clamp(3rem,14vw,5rem); animation:bounce .8s ease-in-out infinite; }
+    .final-title {
+      font-size:clamp(1.3rem,5.5vw,2rem); font-weight:700;
+      color:#69f0ae; text-align:center; margin:12px 0 6px;
+      text-shadow:0 0 30px rgba(105,240,174,.4);
+    }
+    .final-sub {
+      font-size:clamp(.85rem,3.2vw,1rem);
+      color:#aaa; font-style:italic;
+      text-align:center; margin-bottom:24px;
+    }
+    .btn-whats {
+      display:inline-flex; align-items:center; gap:10px;
+      padding:16px 34px;
+      background:linear-gradient(135deg,#25d366,#128c7e);
+      color:#fff; border:none; border-radius:50px;
+      font-family:'Poppins',sans-serif; font-weight:700;
+      font-size:clamp(1rem,4.2vw,1.25rem);
+      cursor:pointer; box-shadow:0 4px 30px rgba(37,211,102,.5);
+      text-decoration:none;
+      animation:pulse 2s ease-in-out infinite;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .btn-whats .wa-icon { font-size:1.4em; }
+
+    /* ── CORAÇÕES ── */
+    #heartsContainer {
+      position:fixed; inset:0; z-index:4;
+      pointer-events:none; overflow:hidden;
+      opacity:0; transition:opacity .5s ease;
+    }
+    #heartsContainer.active { opacity:1; }
+
+    .heart-particle {
+      position:absolute; font-size:20px;
+      animation: heartFall linear forwards, heartSway ease-in-out infinite;
+      opacity:0;
+      filter: drop-shadow(0 0 6px rgba(255,50,100,.6));
+    }
+    @keyframes heartFall {
+      0%   { transform:translateY(-60px) scale(0); opacity:0; }
+      8%   { opacity:1; transform:translateY(-40px) scale(1); }
+      90%  { opacity:.8; }
+      100% { transform:translateY(110vh) scale(.6); opacity:0; }
+    }
+    @keyframes heartSway {
+      0%,100% { margin-left:0; }
+      25%     { margin-left:25px; }
+      75%     { margin-left:-25px; }
+    }
+    .heart-burst {
+      position:fixed; font-size:28px; z-index:25;
+      pointer-events:none;
+      animation: burstOut .9s cubic-bezier(.25,.46,.45,.94) forwards;
+    }
+    @keyframes burstOut {
+      0%   { transform:translate(0,0) scale(0) rotate(0deg); opacity:1; }
+      60%  { opacity:1; }
+      100% { transform:translate(var(--bx),var(--by)) scale(1.3) rotate(var(--br)); opacity:0; }
+    }
+    .heart-float {
+      position:fixed; bottom:-40px; font-size:22px; z-index:4;
+      pointer-events:none; opacity:0;
+      animation: floatUp linear forwards;
+      filter: drop-shadow(0 0 8px rgba(255,80,130,.5));
+    }
+    @keyframes floatUp {
+      0%   { transform:translateY(0) scale(.5) rotate(0deg); opacity:0; }
+      10%  { opacity:.9; transform:translateY(-10vh) scale(1); }
+      90%  { opacity:.6; }
+      100% { transform:translateY(-115vh) scale(.7) rotate(35deg); opacity:0; }
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="stars"></canvas>
+
+<audio id="bgMusic" loop preload="auto">
+  <source src="musica.mp3" type="audio/mpeg">
+</audio>
+
+<div id="heartsContainer"></div>
+
+<div id="curtain">
+  <div class="rod"></div>
+  <div class="panel l" id="pL"></div>
+  <div class="panel r" id="pR"></div>
+  <button id="openBtn" onclick="abrirCortina()">Clique em mim</button>
+</div>
+
+<div id="videoArea">
+  <video id="vid" playsinline preload="auto">
+    <source src="video.mp4" type="video/mp4">
+  </video>
+  <div id="pauseText">
+    <p id="txt1">tá vendo esse cara aí? 👆</p>
+    <p id="txt2">esse sou eu 😎</p>
+  </div>
+</div>
+
+<!-- TEXTOS SEQUENCIAIS (só estrelas de fundo) -->
+<div id="textSequence">
+  <div id="seqText"></div>
+</div>
+
+<!-- TELA MOTIVOS -->
+<div id="motivosScreen">
+  <div class="motivos-title" id="motivosTitle">MOTIVOS PARA DAR UMA CHANCE PRO CAUÃ</div>
+  <div class="motivos-sub" id="motivosSub">clica em cada um pra descobrir</div>
+
+  <div class="motivos-list" id="motivosList">
+    <div class="motivo-drop" id="m1">
+      <div class="motivo-header" onclick="toggleMotivo('m1')">
+        <span class="motivo-label">?</span>
+        <span class="motivo-arrow">▼</span>
+      </div>
+      <div class="motivo-body">
+        <p>se eu consigo me manter numa tábua com rodinha, <strong>imagina num relacionamento</strong></p>
+      </div>
+    </div>
+
+    <div class="motivo-drop" id="m2">
+      <div class="motivo-header" onclick="toggleMotivo('m2')">
+        <span class="motivo-label">?</span>
+        <span class="motivo-arrow">▼</span>
+      </div>
+      <div class="motivo-body">
+        <p>toco guitarra, flauta, violão e piano, me pede qualquer música que <strong>eu toco pra você</strong></p>
+      </div>
+    </div>
+
+    <div class="motivo-drop" id="m3">
+      <div class="motivo-header" onclick="toggleMotivo('m3')">
+        <span class="motivo-label">?</span>
+        <span class="motivo-arrow">▼</span>
+      </div>
+      <div class="motivo-body">
+        <p>faço tecnologia, ou seja, <strong>app besta em todo aniversário de namoro</strong> tá garantido</p>
+      </div>
+    </div>
+
+    <div class="motivo-drop" id="m4">
+      <div class="motivo-header" onclick="toggleMotivo('m4')">
+        <span class="motivo-label">?</span>
+        <span class="motivo-arrow">▼</span>
+      </div>
+      <div class="motivo-body">
+        <p>sou esforçado e trabalho, <strong>te pago um açaí toda semana</strong> (NÃO QUE VOCÊ NÃO SEJA CAPACITADA PARA COMPRAR PRA SI MESMA)</p>
+      </div>
+    </div>
+
+    <div class="motivo-drop" id="m5">
+      <div class="motivo-header" onclick="toggleMotivo('m5')">
+        <span class="motivo-label">?</span>
+        <span class="motivo-arrow">▼</span>
+      </div>
+      <div class="motivo-body">
+        <p>treino TODO dia, zero faltas, <strong>abro qualquer pote de conserva pra você</strong></p>
+      </div>
+    </div>
+  </div>
+
+  <button class="motivos-next-btn" id="motivosNextBtn" onclick="irParaExtras()">não me convenceu</button>
+</div>
+
+<!-- TELA EXTRAS -->
+<div id="extrasScreen">
+  <div class="extras-text" id="extrasText"></div>
+  <div class="extras-photo" id="extrasPhoto">
+    <img id="extrasImg" src="" alt="">
+  </div>
+  <div class="extras-name" id="extrasName"></div>
+  <button class="extras-btn" id="extrasBtn" onclick="proximoExtra()">próximo</button>
+</div>
+
+<!-- TELA CASAR -->
+<div id="casarScreen">
+  <div class="casar-emoji">🥺</div>
+  <div class="casar-title">ME DÁ UMA CHANCE LINDA?</div>
+  <div class="casar-sub"></div>
+  <div class="casar-btns">
+    <button class="btn-sim" onclick="disseSim()">Sim! 💖</button>
+    <button class="btn-nao" id="btnNao">Não 😤</button>
+  </div>
+  <div class="casar-msg" id="casarMsg"></div>
+</div>
+
+<!-- TELA DEPOIMENTOS -->
+<div id="depoimentosScreen">
+  <div class="depo-title">o que dizem sobre o Cauã:</div>
+  <div class="depo-card" id="depo1">
+    <div class="depo-stars">⭐⭐⭐⭐⭐</div>
+    <div class="depo-text">"Criei esse menino com todo amor. Se ele fez esse app pra você, pode confiar que é sério. Aprovado pelo pai."</div>
+    <div class="depo-author">— Pai do Cauã</div>
+  </div>
+  <div class="depo-card" id="depo2">
+    <div class="depo-stars">⭐⭐⭐⭐⭐</div>
+    <div class="depo-text">"Ele é carinhoso, esforçado e faz um miojo que até eu me orgulho. Dá uma chance pra ele, minha filha."</div>
+    <div class="depo-author">— Mãe do Cauã</div>
+  </div>
+  <div class="depo-card" id="depo3">
+    <div class="depo-stars">⭐⭐⭐⭐⭐</div>
+    <div class="depo-text">"Au au au au au au. Au. (tradução: ele me dá ração todo dia e carinho, 10/10 recomendo como dono)"</div>
+    <div class="depo-author">— Nala 🐶</div>
+  </div>
+  <div class="depo-card" id="depo4">
+    <div class="depo-stars">⭐<span style="filter:grayscale(1);opacity:.4">⭐⭐⭐⭐</span></div>
+    <div class="depo-text">"MIAU MIAU MIAU 😡🤬💢 (tradução: fdp escolheu minha pior foto)"</div>
+    <div class="depo-author">— O Gato 🐱</div>
+  </div>
+  <button class="depo-next-btn" id="depoNextBtn" onclick="irParaSobrinha()">próximo</button>
+</div>
+
+<!-- TELA APELAR (meme) -->
+<div id="apelarScreen">
+  <div class="apelar-text" id="apelarText">já que nada disso foi suficiente... vou ter que apelar.</div>
+  <div class="apelar-video-wrap" id="apelarVideoWrap">
+    <video id="memelVid" playsinline preload="auto">
+      <source src="memel.mp4" type="video/mp4">
+    </video>
+  </div>
+  <a class="btn-whats apelar-btn" id="apelarBtn" href="https://wa.me/5585998175354?text=CAU%C3%83...%20EU%20ACHO%20Q%20TE%20AMO" target="_blank">
+    <span> Tá bom, SÓ PELA MEMEL
+  </a>
+</div>
+
+<!-- TELA FINAL -->
+<div id="finalScreen">
+  <div class="final-emoji">🥳</div>
+  <div class="final-title">EU SABIA! 🎉💖</div>
+  <div class="final-sub">Sou legal, eu prometo 🤙</div>
+  <a class="btn-whats" href="https://wa.me/5585998175354?text=CAU%C3%83...%20EU%20ACHO%20Q%20TE%20AMO" target="_blank">
+    <span> Vamos conversar!
+  </a>
+</div>
+
+<script>
+// ═══ MÚSICA ═══
+var bgMusic = document.getElementById('bgMusic');
+bgMusic.volume = 0.5;
+bgMusic.play().catch(function(){
+  document.addEventListener('click', function iniciar(){
+    bgMusic.play();
+    document.removeEventListener('click', iniciar);
+  }, {once:true});
+  document.addEventListener('touchstart', function iniciar2(){
+    bgMusic.play();
+    document.removeEventListener('touchstart', iniciar2);
+  }, {once:true});
+});
+
+// ═══ ESTRELAS ═══
+(function(){
+  var c=document.getElementById('stars'),x=c.getContext('2d'),s=[];
+  function r(){c.width=innerWidth;c.height=innerHeight;}
+  function i(){r();s=[];for(var j=0;j<120;j++)s.push({x:Math.random()*c.width,y:Math.random()*c.height,r:Math.random()*1.4+.3,sp:Math.random()*.014+.004,p:Math.random()*Math.PI*2});}
+  function d(){x.clearRect(0,0,c.width,c.height);for(var j=0;j<s.length;j++){var t=s[j];t.p+=t.sp;var a=.12+.7*((Math.sin(t.p)+1)/2);x.beginPath();x.arc(t.x,t.y,t.r,0,Math.PI*2);x.fillStyle='rgba(255,215,235,'+a.toFixed(3)+')';x.fill();}requestAnimationFrame(d);}
+  addEventListener('resize',i);i();d();
+})();
+
+// ═══ CORAÇÕES ═══
+var heartEmojis = ['❤️','💕','💖','💗','💘','💝','💓','💞','♥️','😍','🥰'];
+var heartsBox = document.getElementById('heartsContainer');
+
+function spawnFallingHeart(){
+  var h = document.createElement('span');
+  h.className = 'heart-particle';
+  h.textContent = heartEmojis[Math.floor(Math.random()*heartEmojis.length)];
+  var size = 14 + Math.random()*28;
+  var dur = 3 + Math.random()*4;
+  var sway = 1.5 + Math.random()*2;
+  h.style.fontSize = size+'px';
+  h.style.left = Math.random()*100+'%';
+  h.style.animationDuration = dur+'s, '+sway+'s';
+  h.style.animationDelay = Math.random()*0.5+'s';
+  heartsBox.appendChild(h);
+  setTimeout(function(){ h.remove(); }, (dur+1)*1000);
+}
+
+function spawnFloatingHeart(){
+  var h = document.createElement('span');
+  h.className = 'heart-float';
+  h.textContent = heartEmojis[Math.floor(Math.random()*heartEmojis.length)];
+  var size = 16 + Math.random()*24;
+  var dur = 4 + Math.random()*5;
+  h.style.fontSize = size+'px';
+  h.style.left = Math.random()*100+'%';
+  h.style.animationDuration = dur+'s';
+  document.body.appendChild(h);
+  setTimeout(function(){ h.remove(); }, (dur+1)*1000);
+}
+
+function burstHearts(cx, cy){
+  for(var i=0;i<18;i++){
+    var h = document.createElement('span');
+    h.className = 'heart-burst';
+    h.textContent = heartEmojis[Math.floor(Math.random()*heartEmojis.length)];
+    var angle = (Math.PI*2/18)*i + (Math.random()-.5)*.5;
+    var dist = 80 + Math.random()*140;
+    h.style.left = cx+'px';
+    h.style.top = cy+'px';
+    h.style.fontSize = (18+Math.random()*20)+'px';
+    h.style.setProperty('--bx', Math.cos(angle)*dist+'px');
+    h.style.setProperty('--by', Math.sin(angle)*dist+'px');
+    h.style.setProperty('--br', (Math.random()*360-180)+'deg');
+    document.body.appendChild(h);
+    setTimeout(function(){ h.remove(); }, 1000);
+  }
+}
+
+function startHeartRain(){
+  heartsBox.classList.add('active');
+  for(var i=0;i<30;i++){
+    setTimeout(spawnFallingHeart, i*80);
+    if(i%3===0) setTimeout(spawnFloatingHeart, i*100);
+  }
+  setInterval(function(){
+    spawnFallingHeart();
+    if(Math.random()>.5) spawnFloatingHeart();
+  }, 300);
+}
+
+// ═══ CORTINA ═══
+function abrirCortina(){
+  var btn = document.getElementById('openBtn');
+  var rect = btn.getBoundingClientRect();
+  burstHearts(rect.left+rect.width/2, rect.top+rect.height/2);
+  btn.classList.add('hide');
+  document.getElementById('pL').classList.add('open');
+  document.getElementById('pR').classList.add('open');
+
+  setTimeout(startHeartRain, 300);
+
+  setTimeout(function(){
+    document.getElementById('videoArea').classList.add('show');
+    setTimeout(function(){
+      vid.play().catch(function(){});
+    }, 700);
+  }, 600);
+}
+
+// ═══ VÍDEO ═══
+var vid = document.getElementById('vid');
+vid.muted = true;
+var pausado = false;
+var PAUSE_AT = 1.80;
+
+vid.addEventListener('timeupdate', function(){
+  if(!pausado && vid.currentTime >= PAUSE_AT){
+    pausado = true;
+    vid.pause();
+    setTimeout(function(){ document.getElementById('txt1').classList.add('show'); }, 300);
+    setTimeout(function(){ document.getElementById('txt2').classList.add('show'); }, 1300);
+    setTimeout(function(){
+      document.getElementById('txt1').classList.remove('show');
+      document.getElementById('txt2').classList.remove('show');
+      vid.play().catch(function(){});
+    }, 3000);
+  }
+});
+
+// quando vídeo termina → sequência de textos
+vid.addEventListener('ended', function(){
+  document.getElementById('videoArea').style.transition = 'opacity .5s ease';
+  document.getElementById('videoArea').style.opacity = '0';
+  setTimeout(function(){
+    document.getElementById('videoArea').style.display = 'none';
+    iniciarTextos();
+  }, 600);
+});
+
+// ═══ TEXTOS SEQUENCIAIS ═══
+var textos = [
+  'bem skatista né? 🤪🤘',
+  'Mariana...',
+  'eu sou um cara simples..',
+  'se me interessou, eu corro atrás',
+  'por isso te fiz isso ❤',
+  'vantagens de me ter a seguir:'
+];
+
+function iniciarTextos(){
+  var seq = document.getElementById('textSequence');
+  var el = document.getElementById('seqText');
+  seq.classList.add('show');
+
+  var idx = 0;
+
+  function mostrarProximo(){
+    if(idx >= textos.length){
+      // acabou os textos → primeira vantagem
+      el.classList.remove('show');
+      setTimeout(function(){
+        seq.classList.remove('show');
+        seq.style.display = 'none';
+        mostrarMotivos();
+      }, 400);
+      return;
+    }
+
+    el.textContent = textos[idx];
+    // quebra de linha
+    el.innerHTML = textos[idx].replace(/\n/g, '<br>');
+
+    setTimeout(function(){ el.classList.add('show'); }, 50);
+
+    // tempo na tela: 1.5s
+    setTimeout(function(){
+      el.classList.remove('show');
+      setTimeout(function(){
+        idx++;
+        mostrarProximo();
+      }, 400);
+    }, 1500);
+  }
+
+  mostrarProximo();
+}
+
+// ═══ TELA MOTIVOS ═══
+var motivosAbertos = 0;
+
+function mostrarMotivos(){
+  var screen = document.getElementById('motivosScreen');
+  screen.classList.add('show');
+
+  setTimeout(function(){ document.getElementById('motivosTitle').classList.add('show'); }, 200);
+  setTimeout(function(){ document.getElementById('motivosSub').classList.add('show'); }, 600);
+
+  var drops = ['m1','m2','m3','m4','m5'];
+  for(var i=0; i<drops.length; i++){
+    (function(idx){
+      setTimeout(function(){
+        document.getElementById(drops[idx]).classList.add('show');
+      }, 800 + idx*200);
+    })(i);
+  }
+
+  // botão só aparece quando todos os motivos forem abertos
+}
+
+var motivoTitulos = {
+  m1: 'equilíbrio é tudo',
+  m2: 'sua trilha sonora',
+  m3: 'nerd do bem',
+  m4: 'esforçado demais',
+  m5: 'saúde em primeiro lugar'
+};
+
+function toggleMotivo(id){
+  var el = document.getElementById(id);
+  var wasOpen = el.classList.contains('open');
+  el.classList.toggle('open');
+  if(!wasOpen){
+    motivosAbertos++;
+    el.querySelector('.motivo-label').textContent = motivoTitulos[id];
+    burstHearts(Math.random()*innerWidth, Math.random()*innerHeight);
+    if(motivosAbertos >= 5){
+      document.getElementById('motivosNextBtn').classList.add('show');
+    }
+  }
+}
+
+// ═══ TELA EXTRAS ═══
+var extras = [
+  { text:'essa é a Nala, minha cachorra', img:'cachorra.jpeg', name:'Nala' },
+  { text:'esse é meu gato, lindo né??', img:'gatoEngraçad.jpeg', name:'o gato' },
+  { text:'esse é meu papagaio Louro e meu galo, Vitório.', img:'galinhaElOuro.jpeg', name:'Louro e Vitório' }
+];
+var extraIdx = 0;
+
+function irParaExtras(){
+  document.getElementById('motivosScreen').classList.remove('show');
+  setTimeout(function(){
+    document.getElementById('motivosScreen').style.display = 'none';
+    // textos de transição na tela de estrelas
+    var seq = document.getElementById('textSequence');
+    var el = document.getElementById('seqText');
+    seq.style.display = 'flex';
+    seq.classList.add('show');
+    el.className = '';
+    el.textContent = 'NÃO TE CONVENCI? COMO ASSIM EU JURO QUE SOU LEGAL';
+    void el.offsetWidth;
+    el.classList.add('show');
+    setTimeout(function(){
+      el.classList.remove('show');
+      setTimeout(function(){
+        el.textContent = 'olha meus animais de estimação';
+        void el.offsetWidth;
+        el.classList.add('show');
+        setTimeout(function(){
+          el.classList.remove('show');
+          setTimeout(function(){
+            seq.style.display = '';
+            seq.classList.remove('show');
+            extraIdx = 0;
+            mostrarExtra();
+          }, 500);
+        }, 1500);
+      }, 500);
+    }, 2000);
+  }, 300);
+}
+
+function mostrarExtra(){
+  var screen = document.getElementById('extrasScreen');
+  var textEl = document.getElementById('extrasText');
+  var photoEl = document.getElementById('extrasPhoto');
+  var imgEl = document.getElementById('extrasImg');
+  var nameEl = document.getElementById('extrasName');
+  var btnEl = document.getElementById('extrasBtn');
+
+  // reset (restaura display caso tenha sido escondido no gato)
+  textEl.style.display = '';
+  photoEl.style.display = '';
+  nameEl.style.display = '';
+  btnEl.style.display = '';
+  textEl.classList.remove('show');
+  photoEl.classList.remove('show');
+  nameEl.classList.remove('show');
+  btnEl.classList.remove('show');
+
+  screen.classList.add('show');
+
+  var item = extras[extraIdx];
+  textEl.textContent = item.text;
+  imgEl.src = item.img;
+  nameEl.textContent = item.name;
+
+  // se é o último, botão diferente
+  if(extraIdx >= extras.length - 1){
+    btnEl.textContent = 'e agora...';
+  } else {
+    btnEl.textContent = 'próximo';
+  }
+
+  setTimeout(function(){ textEl.classList.add('show'); }, 200);
+  setTimeout(function(){ photoEl.classList.add('show'); }, 600);
+  setTimeout(function(){ nameEl.classList.add('show'); }, 1000);
+
+  // gato: depois de 3s esconde a foto e manda parar de rir
+  if(extraIdx === 1){
+    setTimeout(function(){
+      photoEl.style.display = 'none';
+      nameEl.style.display = 'none';
+      btnEl.style.display = 'none';
+      textEl.style.display = 'none';
+      var overlay = document.createElement('div');
+      overlay.id = 'paraDeRirOverlay';
+      overlay.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;z-index:9999;background:rgba(0,0,0,0.9);padding:20px;box-sizing:border-box';
+      overlay.innerHTML = '<span style="font-size:clamp(1.8rem,8vw,3.5rem);font-weight:900;color:#ff3366;text-shadow:0 0 40px rgba(255,50,100,.8),0 0 80px rgba(255,50,100,.4)">PARA DE RIR CARA<br>KKKKKKKKKKKKKK</span>';
+      document.body.appendChild(overlay);
+      setTimeout(function(){
+        var ov = document.getElementById('paraDeRirOverlay');
+        if(ov) ov.remove();
+        proximoExtra();
+      }, 2000);
+    }, 3000);
+  } else {
+    setTimeout(function(){
+      btnEl.classList.add('show');
+      burstHearts(Math.random()*innerWidth, Math.random()*innerHeight);
+    }, 1200);
+  }
+}
+
+function proximoExtra(){
+  extraIdx++;
+  if(extraIdx >= extras.length){
+    // acabou os extras → depoimentos
+    document.getElementById('extrasScreen').classList.remove('show');
+    setTimeout(function(){
+      document.getElementById('extrasScreen').style.display = 'none';
+      mostrarDepoimentos();
+    }, 300);
+    return;
+  }
+
+  // transição entre extras
+  var textEl = document.getElementById('extrasText');
+  var photoEl = document.getElementById('extrasPhoto');
+  var nameEl = document.getElementById('extrasName');
+  var btnEl = document.getElementById('extrasBtn');
+
+  textEl.classList.remove('show');
+  photoEl.classList.remove('show');
+  nameEl.classList.remove('show');
+  btnEl.classList.remove('show');
+
+  setTimeout(function(){
+    mostrarExtra();
+  }, 400);
+}
+
+// ═══ DEPOIMENTOS ═══
+function mostrarDepoimentos(){
+  var screen = document.getElementById('depoimentosScreen');
+  screen.classList.add('show');
+  var cards = screen.querySelectorAll('.depo-card');
+  for(var i=0;i<cards.length;i++){
+    (function(idx){
+      setTimeout(function(){ cards[idx].classList.add('show'); }, 400 + idx*500);
+    })(i);
+  }
+  setTimeout(function(){
+    document.getElementById('depoNextBtn').classList.add('show');
+  }, 400 + cards.length*500 + 300);
+}
+
+function irParaSobrinha(){
+  document.getElementById('depoimentosScreen').classList.remove('show');
+  setTimeout(function(){
+    document.getElementById('depoimentosScreen').style.display = 'none';
+    // mostrar sobrinha na tela de extras
+    var screen = document.getElementById('extrasScreen');
+    var textEl = document.getElementById('extrasText');
+    var photoEl = document.getElementById('extrasPhoto');
+    var imgEl = document.getElementById('extrasImg');
+    var nameEl = document.getElementById('extrasName');
+    var btnEl = document.getElementById('extrasBtn');
+
+    textEl.style.display = '';
+    photoEl.style.display = '';
+    nameEl.style.display = '';
+    btnEl.style.display = '';
+    textEl.classList.remove('show');
+    photoEl.classList.remove('show');
+    nameEl.classList.remove('show');
+    btnEl.classList.remove('show');
+
+    screen.style.display = '';
+    screen.classList.add('show');
+
+    textEl.textContent = 'eu também tenho uma sobrinha';
+    imgEl.src = 'memelEEu.jpeg';
+    nameEl.textContent = 'memel :)';
+    btnEl.textContent = 'próximo';
+    btnEl.onclick = function(){
+      screen.classList.remove('show');
+      setTimeout(function(){
+        screen.style.display = 'none';
+        document.getElementById('casarScreen').classList.add('show');
+        setupBtnNao();
+      }, 300);
+    };
+
+    setTimeout(function(){ textEl.classList.add('show'); }, 200);
+    setTimeout(function(){ photoEl.classList.add('show'); }, 600);
+    setTimeout(function(){ nameEl.classList.add('show'); }, 1000);
+    setTimeout(function(){ btnEl.classList.add('show'); }, 1200);
+  }, 300);
+}
+
+// ═══ CONFETE ═══
+function lancaConfete(){
+  var cores = ['#ff3366','#ffb0c8','#69f0ae','#ffd700','#ff6b9d','#00c853','#ff4081','#e040fb'];
+  for(var i=0;i<80;i++){
+    (function(idx){
+      setTimeout(function(){
+        var c = document.createElement('div');
+        c.className = 'confetti';
+        c.style.left = Math.random()*100 + 'vw';
+        c.style.background = cores[Math.floor(Math.random()*cores.length)];
+        c.style.width = (Math.random()*8+6) + 'px';
+        c.style.height = (Math.random()*8+6) + 'px';
+        c.style.animationDuration = (Math.random()*2+2) + 's';
+        c.style.animationDelay = '0s';
+        document.body.appendChild(c);
+        setTimeout(function(){ c.remove(); }, 4000);
+      }, idx*40);
+    })(i);
+  }
+}
+
+// ═══ TELA CASAR ═══
+function irParaCasar(){
+  document.getElementById('extrasScreen').classList.remove('show');
+  setTimeout(function(){
+    document.getElementById('extrasScreen').style.display = 'none';
+    document.getElementById('casarScreen').classList.add('show');
+    setupBtnNao();
+  }, 300);
+}
+
+var naoCount = 0;
+var naoTexts = [
+  'Não',
+  'Tem certeza?',
+  'E se eu pedir bonito?',
+  'Por favorzinho',
+  'Te faço um bolinho',
+  'E um açaí de brinde?',
+  'POR FAVOR!!!!',
+  'Mass... :*(',
+  'Vou morrer',
+  'Pronto, morri',
+  'Tá falando com o fantasma do Cauã agora',
+  'Por favor linda',
+  ':(((((',
+  'POR FAVOR!!!!',
+  'Não :('
+];
+var naoMsgs = [
+  'hmmm clicou rápido hein',
+  'eita tá fugindo de quê?',
+  'pensa com carinho vai..',
+  'prometo que sou legal',
+  'olha o esforço que eu tô fazendo',
+  'esse botão tá com vida própria',
+  'POR FAVOR CARA',
+  'tô vendo que vc tá sorrindo aí',
+  'eu sei que vc quer clicar no sim',
+  'F no chat pelo Pedro',
+  'buuuuu sou um fantasma',
+  'vai me deixar assim?',
+  'o botão tá chorando',
+  'última chance vai..',
+  'ok desisto... brincadeira'
+];
+
+var btnNao = document.getElementById('btnNao');
+
+function setupBtnNao(){
+  btnNao.onclick = tentouNao;
+}
+
+function fugirBotao(){
+  var pad = 20;
+  var bw = btnNao.offsetWidth || 120;
+  var bh = btnNao.offsetHeight || 50;
+  var nx = pad + Math.random()*(innerWidth - bw - pad*2);
+  var ny = pad + Math.random()*(innerHeight - bh - pad*2);
+  btnNao.classList.add('runner');
+  btnNao.style.left = nx+'px';
+  btnNao.style.top = ny+'px';
+  btnNao.style.transition = 'left .25s cubic-bezier(.34,1.56,.64,1), top .25s cubic-bezier(.34,1.56,.64,1)';
+}
+
+function tentouNao(){
+  naoCount++;
+  var msg = document.getElementById('casarMsg');
+  if(naoCount-1 < naoMsgs.length) msg.textContent = naoMsgs[naoCount-1];
+  msg.classList.remove('show');
+  setTimeout(function(){ msg.classList.add('show'); }, 50);
+
+  if(naoCount < naoTexts.length) btnNao.textContent = naoTexts[naoCount];
+
+  // foge depois do clique a partir do 5o
+  if(naoCount >= 5 && naoCount < naoTexts.length) fugirBotao();
+
+  // último clique → tela apelar
+  if(naoCount >= naoTexts.length){
+    btnNao.style.display = 'none';
+    var msg2 = document.getElementById('casarMsg');
+    msg2.textContent = '';
+    setTimeout(irParaApelar, 600);
+  }
+}
+
+function disseSim(){
+  document.getElementById('casarScreen').classList.remove('show');
+  setTimeout(function(){
+    document.getElementById('casarScreen').style.display = 'none';
+    document.getElementById('finalScreen').classList.add('show');
+    lancaConfete();
+    for(var i=0;i<5;i++){
+      setTimeout(function(){
+        burstHearts(innerWidth/2+(Math.random()-.5)*200, innerHeight/2+(Math.random()-.5)*200);
+      }, i*300);
+    }
+  }, 300);
+}
+
+// ═══ TELA APELAR ═══
+function irParaApelar(){
+  document.getElementById('casarScreen').classList.remove('show');
+  setTimeout(function(){
+    document.getElementById('casarScreen').style.display = 'none';
+    document.getElementById('apelarScreen').classList.add('show');
+    bgMusic.pause();
+
+    setTimeout(function(){
+      document.getElementById('apelarText').classList.add('show');
+    }, 300);
+
+    setTimeout(function(){
+      document.getElementById('apelarVideoWrap').classList.add('show');
+      var memelVid = document.getElementById('memelVid');
+      memelVid.play().catch(function(){});
+    }, 1200);
+
+    var memelVid = document.getElementById('memelVid');
+    memelVid.addEventListener('ended', function(){
+      document.getElementById('apelarBtn').classList.add('show');
+    });
+    setTimeout(function(){
+      document.getElementById('apelarBtn').classList.add('show');
+    }, 8000);
+  }, 300);
+}
+</script>
+
+</body>
+</html>
