@@ -568,12 +568,10 @@
 </div>
 
 <div id="videoArea">
-  <video id="vid" playsinline preload="auto">
-    <source src="video.mp4" type="video/mp4">
-  </video>
+  <img id="vid" src="piano.jpg" alt="">
   <div id="pauseText">
     <p id="txt1">tá vendo esse cara aí? 👆</p>
-    <p id="txt2">esse sou eu 😎</p>
+    <p id="txt2">tô te ensinando piano 🎹</p>
   </div>
 </div>
 
@@ -812,41 +810,27 @@ function abrirCortina(){
 
   setTimeout(function(){
     document.getElementById('videoArea').classList.add('show');
-    setTimeout(function(){
-      vid.play().catch(function(){});
-    }, 700);
+    setTimeout(rodarImagem, 700);
   }, 600);
 }
 
-// ═══ VÍDEO ═══
-var vid = document.getElementById('vid');
-vid.muted = true;
-var pausado = false;
-var PAUSE_AT = 1.80;
-
-vid.addEventListener('timeupdate', function(){
-  if(!pausado && vid.currentTime >= PAUSE_AT){
-    pausado = true;
-    vid.pause();
-    setTimeout(function(){ document.getElementById('txt1').classList.add('show'); }, 300);
-    setTimeout(function(){ document.getElementById('txt2').classList.add('show'); }, 1300);
-    setTimeout(function(){
-      document.getElementById('txt1').classList.remove('show');
-      document.getElementById('txt2').classList.remove('show');
-      vid.play().catch(function(){});
-    }, 3000);
-  }
-});
-
-// quando vídeo termina → sequência de textos
-vid.addEventListener('ended', function(){
-  document.getElementById('videoArea').style.transition = 'opacity .5s ease';
-  document.getElementById('videoArea').style.opacity = '0';
+// ═══ IMAGEM (antes era vídeo) ═══
+function rodarImagem(){
+  setTimeout(function(){ document.getElementById('txt1').classList.add('show'); }, 800);
+  setTimeout(function(){ document.getElementById('txt2').classList.add('show'); }, 1800);
   setTimeout(function(){
-    document.getElementById('videoArea').style.display = 'none';
-    iniciarTextos();
-  }, 600);
-});
+    document.getElementById('txt1').classList.remove('show');
+    document.getElementById('txt2').classList.remove('show');
+  }, 4000);
+  setTimeout(function(){
+    document.getElementById('videoArea').style.transition = 'opacity .5s ease';
+    document.getElementById('videoArea').style.opacity = '0';
+    setTimeout(function(){
+      document.getElementById('videoArea').style.display = 'none';
+      iniciarTextos();
+    }, 600);
+  }, 4800);
+}
 
 // ═══ TEXTOS SEQUENCIAIS ═══
 var textos = [
