@@ -568,10 +568,10 @@
 </div>
 
 <div id="videoArea">
-  <img id="vid" src="piano.jpg" alt="">
+  <img id="vid" src="piano.jpg" alt="" style="display:none">
   <div id="pauseText">
-    <p id="txt1">tá vendo esse cara aí? 👆</p>
-    <p id="txt2">tô te ensinando piano 🎹</p>
+    <p id="txt1">tiraram uma foto nossa 📸</p>
+    <p id="txt2">olha o jeito que cê me deixou, que merda 😩</p>
   </div>
 </div>
 
@@ -592,7 +592,7 @@
         <span class="motivo-arrow">▼</span>
       </div>
       <div class="motivo-body">
-        <p>se eu consigo me manter numa tábua com rodinha, <strong>imagina num relacionamento</strong></p>
+        <p>meus olhos são <strong>só pra você</strong>, 10000% fiel, juro 👀❤️</p>
       </div>
     </div>
 
@@ -602,7 +602,7 @@
         <span class="motivo-arrow">▼</span>
       </div>
       <div class="motivo-body">
-        <p>toco guitarra, flauta, violão e piano, me pede qualquer música que <strong>eu toco pra você</strong></p>
+        <p>prometo que <strong>a gente vai escutar muito CJBR juntos</strong> 🎶</p>
       </div>
     </div>
 
@@ -612,7 +612,7 @@
         <span class="motivo-arrow">▼</span>
       </div>
       <div class="motivo-body">
-        <p>faço tecnologia, ou seja, <strong>app besta em todo aniversário de namoro</strong> tá garantido</p>
+        <p><strong>app besta em todo aniversário</strong> tá garantido 💻❤️</p>
       </div>
     </div>
 
@@ -622,7 +622,7 @@
         <span class="motivo-arrow">▼</span>
       </div>
       <div class="motivo-body">
-        <p>sou esforçado e trabalho, <strong>te pago um açaí toda semana</strong> (NÃO QUE VOCÊ NÃO SEJA CAPACITADA PARA COMPRAR PRA SI MESMA)</p>
+        <p><strong>te faço crepe toda semana</strong> 🥞</p>
       </div>
     </div>
 
@@ -632,7 +632,7 @@
         <span class="motivo-arrow">▼</span>
       </div>
       <div class="motivo-body">
-        <p>treino TODO dia, zero faltas, <strong>abro qualquer pote de conserva pra você</strong></p>
+        <p>treino todo dia, então <strong>abro qualquer pote, carrego sacola e mato barata</strong> pra você 💪</p>
       </div>
     </div>
   </div>
@@ -653,7 +653,7 @@
 <!-- TELA CASAR -->
 <div id="casarScreen">
   <div class="casar-emoji">🥺</div>
-  <div class="casar-title">ME DÁ UMA CHANCE DE FICAR COMIGO LINDA?</div>
+  <div class="casar-title">VAMO PRA PRAIA CMG?</div>
   <div class="casar-sub"></div>
   <div class="casar-btns">
     <button class="btn-sim" onclick="disseSim()">Sim! 💖</button>
@@ -703,11 +703,10 @@
 
 <!-- TELA FINAL -->
 <div id="finalScreen">
-  <div class="final-emoji">🥳</div>
-  <div class="final-title">EU SABIA! 🎉💖</div>
-  <div class="final-sub">Sou legal, eu prometo 🤙</div>
-  <a class="btn-whats" href="https://wa.me/5585998175354?text=CAU%C3%83...%20EU%20ACHO%20Q%20TE%20AMO" target="_blank">
-    <span> Vamos conversar!
+  <div class="final-emoji">🏖️</div>
+  <div class="final-title">VAMOS PRA PRAIA LINDA???</div>
+  <a class="btn-whats" href="https://wa.me/5585998175354?text=VAMOS%20PRA%20PRAIA%20CAU%C3%83" target="_blank">
+    <span>Vamos!</span>
   </a>
 </div>
 
@@ -816,12 +815,19 @@ function abrirCortina(){
 
 // ═══ IMAGEM (antes era vídeo) ═══
 function rodarImagem(){
-  setTimeout(function(){ document.getElementById('txt1').classList.add('show'); }, 800);
-  setTimeout(function(){ document.getElementById('txt2').classList.add('show'); }, 1800);
+  var img = document.getElementById('vid');
+  img.style.display = 'none';
+  setTimeout(function(){ document.getElementById('txt1').classList.add('show'); }, 400);
   setTimeout(function(){
     document.getElementById('txt1').classList.remove('show');
+  }, 2200);
+  setTimeout(function(){
+    img.style.display = '';
+    document.getElementById('txt2').classList.add('show');
+  }, 2700);
+  setTimeout(function(){
     document.getElementById('txt2').classList.remove('show');
-  }, 4000);
+  }, 5200);
   setTimeout(function(){
     document.getElementById('videoArea').style.transition = 'opacity .5s ease';
     document.getElementById('videoArea').style.opacity = '0';
@@ -829,12 +835,12 @@ function rodarImagem(){
       document.getElementById('videoArea').style.display = 'none';
       iniciarTextos();
     }, 600);
-  }, 4800);
+  }, 6000);
 }
 
 // ═══ TEXTOS SEQUENCIAIS ═══
 var textos = [
-  'oi sumida 👀',
+  'muito bobão né pqp',
   'Alexia...',
   'eu sou um cara simples..',
   'se me interessou, eu corro atrás',
@@ -903,11 +909,11 @@ function mostrarMotivos(){
 }
 
 var motivoTitulos = {
-  m1: 'equilíbrio é tudo',
-  m2: 'sua trilha sonora',
-  m3: 'nerd do bem',
-  m4: 'esforçado demais',
-  m5: 'saúde em primeiro lugar'
+  m1: 'olhos só pra você',
+  m2: 'cjbr na nossa trilha',
+  m3: 'surpresinha garantida',
+  m4: 'crepe toda semana',
+  m5: 'sempre por perto'
 };
 
 function toggleMotivo(id){
@@ -939,9 +945,9 @@ function toggleMotivo(id){
 
 // ═══ TELA EXTRAS ═══
 var extras = [
-  { text:'essa é a Nala, minha cachorra', img:'cachorra.jpeg', name:'Nala' },
-  { text:'esse é meu gato, lindo né??', img:'gatoEngraçad.jpeg', name:'o gato' },
-  { text:'esse é meu papagaio Louro e meu galo, Vitório.', img:'galinhaElOuro.jpeg', name:'Louro e Vitório' }
+  { text:'oi, sou a Nala, fica com ele que ele me dá petisco 🐶', img:'cachorra.jpeg', name:'Nala' },
+  { text:'miau (tradução: ele é gente boa, pode confiar) 😼', img:'gatoEngraçad.jpeg', name:'o gato' },
+  { text:'DÁ +1 BEIJO NELE ALEXIA 🦜', img:'galinhaElOuro.jpeg', name:'LOURO' }
 ];
 var extraIdx = 0;
 
@@ -961,7 +967,7 @@ function irParaExtras(){
     setTimeout(function(){
       el.classList.remove('show');
       setTimeout(function(){
-        el.textContent = 'olha meus animais de estimação';
+        el.textContent = 'meus bichos têm algo pra te dizer';
         void el.offsetWidth;
         el.classList.add('show');
         setTimeout(function(){
@@ -1107,7 +1113,7 @@ function irParaSobrinha(){
     screen.style.display = '';
     screen.classList.add('show');
 
-    textEl.textContent = 'eu também tenho uma sobrinha';
+    textEl.textContent = 'até minha sobrinha apoia a gente';
     imgEl.src = 'memelEEu.jpeg';
     nameEl.textContent = 'memel :)';
     btnEl.textContent = 'próximo';
